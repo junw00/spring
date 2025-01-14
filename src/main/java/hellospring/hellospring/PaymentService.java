@@ -27,15 +27,16 @@ public class PaymentService {
         br.close();
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.readValue(response, )
+        ExRateData data = mapper.readValue(response, ExRateData.class);
+        BigDecimal exRate = data.rates().get("KRW");
 
-        System.out.println(response);
+        //금액 계산
+        BigDecimal convertedAmount = foreignCurrencyAmount.multiply(exRate); //곱하기
 
-        //금애 계산
         //유효 시간 계산
-        return new Payment(orderId, currency, foreignCurrencyAmount, ZERO, ZERO,
-                LocalDateTime.now()
-        );
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(30);
+
+        return new Payment(orderId, currency, foreignCurrencyAmount, exRate, convertedAmount, validUntil);
     }
 
     public static void main(String[] args) throws IOException {
